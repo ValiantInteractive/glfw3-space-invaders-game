@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include "game.h"
+#define BORDER 1.1
 
 int keysArePressed[512];
 
@@ -20,13 +21,17 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 void keyInput()
 {
-    if(keysArePressed[GLFW_KEY_RIGHT])
-    {
-        player.x += 0.03f;
-    }
-    if (keysArePressed[GLFW_KEY_LEFT])
-    {
-        player.x -= 0.03f;
+    if(player.x < BORDER && player.x > -BORDER) {
+        if (keysArePressed[GLFW_KEY_RIGHT]) {
+            player.x += 0.03f;
+        }
+        if (keysArePressed[GLFW_KEY_LEFT]) {
+            player.x -= 0.03f;
+        }
+    } else if(player.x <= -BORDER) {
+        player.x += 0.01f ;
+    } else if(player.x >= BORDER) {
+        player.x -= 0.01f;
     }
 }
 
@@ -38,7 +43,7 @@ int main(void)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    window = glfwCreateWindow(640, 480, "OpenGL Game", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "OpenGL Game", NULL, NULL);
     if (!window)
     {
         glfwTerminate();

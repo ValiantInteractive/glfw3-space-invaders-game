@@ -7,6 +7,10 @@
 #IncludeRegexTransform: 
 
 /home/valiant/CLionProjects/SpaceInvaders/game.h
+iostream
+/home/valiant/CLionProjects/SpaceInvaders/iostream
+cmath
+/home/valiant/CLionProjects/SpaceInvaders/cmath
 
 /home/valiant/CLionProjects/SpaceInvaders/main.cpp
 GLFW/glfw3.h
