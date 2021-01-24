@@ -11,6 +11,8 @@ iostream
 /home/valiant/CLionProjects/SpaceInvaders/iostream
 cmath
 /home/valiant/CLionProjects/SpaceInvaders/cmath
+ctime
+-
 
 /home/valiant/CLionProjects/SpaceInvaders/main.cpp
 GLFW/glfw3.h
