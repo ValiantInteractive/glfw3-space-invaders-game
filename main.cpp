@@ -1,3 +1,5 @@
+// Main Program v1.0
+
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <cstdio>
