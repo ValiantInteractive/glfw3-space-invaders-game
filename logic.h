@@ -1,15 +1,13 @@
-//
-// Created by Uljas Lindell on 24.1.2021.
-// Version 0.5
+// Created by Uljas Lindell on 25.1.2021.
+// Version 0.6
 
-#ifndef SPACEINVADERS_GAME_H
-#define SPACEINVADERS_GAME_H
+#ifndef SPACEINVADERS_LOGIC_H
+#define SPACEINVADERS_LOGIC_H
 #define BORDER 1
 #define MAX_PROJECTILES 50
 
 #include "iostream"
 #include "cmath"
-#include <ctime>
 
 typedef struct {
     float hp, x, y;
@@ -24,8 +22,6 @@ typedef struct {
     bool active;
     float x, y;
 } Projectile;
-
-bool reloaded;
 
 int score, projectiles, kills;
 
@@ -45,7 +41,6 @@ void initValues() {
     score = 0;
     projectiles = 0;
     kills = 0;
-    reloaded = true;
     player.hp = 100.0f;
     player.y = -0.75f;
     player.x = 0.0f;
@@ -57,20 +52,18 @@ void initValues() {
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         bullet[i].active = false;
         bullet[i].x = player.x;
-        bullet[i].y = 0.04f;
+        bullet[i].y = -0.4f;
     }
 }
 
 void shoot() {
-    if(reloaded) {
-        bullet[projectiles].active = true;
-        bullet[projectiles].x = player.x;
-        bullet[projectiles].x = bullet[projectiles].x;
-        bullet[projectiles].y = -0.4f;
-        projectiles++;
-    }
     if (projectiles == MAX_PROJECTILES)
         projectiles = 0;
+    bullet[projectiles].active = true;
+    bullet[projectiles].x = player.x;
+    bullet[projectiles].x = bullet[projectiles].x;
+    bullet[projectiles].y = -0.4f;
+    projectiles++;
 }
 
 void drawProjectile() {
@@ -78,10 +71,10 @@ void drawProjectile() {
         if (bullet[i].active && enemy.active) {
             glBegin(GL_QUADS);
             glColor3f(1.0f, 0.0f, 0.0f);
-            glVertex3f(bullet[i].x - 0.01f, bullet[i].y, 1.0f);
-            glVertex3f(bullet[i].x + 0.01f, bullet[i].y, 1.0f);
-            glVertex3f(bullet[i].x + 0.01f, bullet[i].y + 0.1f, 1.0f);
-            glVertex3f(bullet[i].x - 0.01f, bullet[i].y + 0.1f, 1.0f);
+            glVertex3f(bullet[i].x - 0.01f, bullet[i].y, 0.0f);
+            glVertex3f(bullet[i].x + 0.01f, bullet[i].y, 0.0f);
+            glVertex3f(bullet[i].x + 0.01f, bullet[i].y + 0.1f, 0.0f);
+            glVertex3f(bullet[i].x - 0.01f, bullet[i].y + 0.1f, 0.0f);
             bullet[i].y += 0.02f;
             if (bullet[i].y >= enemy.y && bullet[i].y <= enemy.y + 0.3f) {
                 if (bullet[i].x <= enemy.x + 0.11f && bullet[i].x >= enemy.x - 0.11f) {
@@ -122,10 +115,10 @@ void drawEnemy() {
 void drawHealthBar() {
     glBegin(GL_QUADS);
     glColor3f(1.0f - player.hp / 100.0f, player.hp / 100.0f, 0.0f);
-    glVertex3f(-1.2f, 0.9f, 0.0f);
-    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.9f, 0.0f);
-    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.8f, 0.0f);
-    glVertex3f(-1.2f, 0.8f, 0.0f);
+    glVertex3f(-1.2f, 0.9f, 1.0f);
+    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.9f, 1.0f);
+    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.8f, 1.0f);
+    glVertex3f(-1.2f, 0.8f, 1.0f);
     glEnd();
 }
 
@@ -138,7 +131,7 @@ void killEnemy() {
     enemy.active = false;
     enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
     enemy.y = 2.0f;
-    enemy.speed += increaseDifficulty(true);
+    enemy.speed += increaseDifficulty(false);
 }
 
 void updateScore(int amount) {
@@ -147,7 +140,7 @@ void updateScore(int amount) {
 }
 
 float increaseDifficulty(bool missed) {
-    float increase;
+    float increase = 0;
     if (!missed) {
         updateScore(50);
         increase = (float) sqrt(kills) / 1000.0f;
@@ -160,16 +153,20 @@ float increaseDifficulty(bool missed) {
 
 void update() {
     drawPlayer();
-
-    if (enemy.active) {
-        drawEnemy();
-    }
-
     drawHealthBar();
     drawProjectile();
 
-    enemy.y -= enemy.speed;
+    if (enemy.active) {
+        drawEnemy();
+        enemy.y -= enemy.speed;
+    }
 
+    if (player.y + 0.3f >= enemy.y && player.y <= enemy.y + 0.3f) {
+        if (player.x <= enemy.x + 0.2f && player.x >= enemy.x - 0.2f) {
+            player.hp -= (float) (rand() % 18 + 4);
+            enemy.active = false;
+        }
+    }
     if (!enemy.active) {
         enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
         enemy.y = 2.0f;
@@ -179,14 +176,10 @@ void update() {
         enemy.x = enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
     }
     if (enemy.y < -1.5f) {
+        enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
+        enemy.y = 2.0f;
+        enemy.active = true;
         enemy.speed += increaseDifficulty(true);
-        enemy.active = false;
-    }
-    if (player.y + 0.3f >= enemy.y && player.y <= enemy.y + 0.3f) {
-        if (player.x <= enemy.x + 0.2f && player.x >= enemy.x - 0.2f) {
-            player.hp -= (float) (rand() % 18 + 4);
-            enemy.active = false;
-        }
     }
 
     if (player.hp <= 0) {
@@ -194,4 +187,4 @@ void update() {
     }
 }
 
-#endif //SPACEINVADERS_GAME_H
+#endif //SPACEINVADERS_LOGIC_H
