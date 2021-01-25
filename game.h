@@ -78,16 +78,10 @@ bool reload() {
     start = glfwGetTime();
     do
     {
-        glBegin(GL_QUADS);
-        glColor3f(1.0f - player.hp / 100.0f, player.hp / 100.0f, 0.0f);
-        glVertex3f(-1.2f, 0.9f, 2.0f);
-        glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.9f, 2.0f);
-        glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.8f, 2.0f);
-        glVertex3f(-1.2f, 0.8f, 2.0f);
-        glEnd();
-        end = glfwGetTime();
+        TODO:
+        Some reloading animation os some sort
     }
-    while( (end-start) < 3.0 );
+    while ((end-start) < 3.0);
     return true;
 }
 
