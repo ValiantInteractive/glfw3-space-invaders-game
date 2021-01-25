@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/SpaceInvaders.dir/main.cpp.o  -o SpaceInvaders  -lglut -lglfw -lGLEW -lGL -lGLU 
