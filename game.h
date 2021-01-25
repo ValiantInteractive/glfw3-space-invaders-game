@@ -1,6 +1,6 @@
 //
-// Created by Uljas Lindell on 24.1.2021.
-// Version 0.5
+// Created by Uljas Lindell on 25.1.2021.
+// Version 0.6
 
 #ifndef SPACEINVADERS_GAME_H
 #define SPACEINVADERS_GAME_H
@@ -9,7 +9,6 @@
 
 #include "iostream"
 #include "cmath"
-#include <ctime>
 
 typedef struct {
     float hp, x, y;
@@ -26,16 +25,13 @@ typedef struct {
 } Projectile;
 
 bool reloaded;
-
 int score, projectiles, kills;
 
 void drawProjectile();
-
 void updateScore(int);
-
 void killEnemy();
-
 float increaseDifficulty(bool);
+bool reload();
 
 Player player;
 Enemy enemy;
@@ -57,20 +53,42 @@ void initValues() {
     for (int i = 0; i < MAX_PROJECTILES; i++) {
         bullet[i].active = false;
         bullet[i].x = player.x;
-        bullet[i].y = 0.04f;
+        bullet[i].y = -0.4f;
     }
 }
 
 void shoot() {
-    if(reloaded) {
+    if (reloaded) {
+        if (projectiles > 3)
+            reloaded = false;
+        if (projectiles == MAX_PROJECTILES)
+            projectiles = 0;
         bullet[projectiles].active = true;
         bullet[projectiles].x = player.x;
         bullet[projectiles].x = bullet[projectiles].x;
         bullet[projectiles].y = -0.4f;
         projectiles++;
+    } else if (!reloaded) {
+        reloaded = reload();
     }
-    if (projectiles == MAX_PROJECTILES)
-        projectiles = 0;
+}
+
+bool reload() {
+    double start, end;
+    start = glfwGetTime();
+    do
+    {
+        glBegin(GL_QUADS);
+        glColor3f(1.0f - player.hp / 100.0f, player.hp / 100.0f, 0.0f);
+        glVertex3f(-1.2f, 0.9f, 2.0f);
+        glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.9f, 2.0f);
+        glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.8f, 2.0f);
+        glVertex3f(-1.2f, 0.8f, 2.0f);
+        glEnd();
+        end = glfwGetTime();
+    }
+    while( (end-start) < 3.0 );
+    return true;
 }
 
 void drawProjectile() {
@@ -122,10 +140,10 @@ void drawEnemy() {
 void drawHealthBar() {
     glBegin(GL_QUADS);
     glColor3f(1.0f - player.hp / 100.0f, player.hp / 100.0f, 0.0f);
-    glVertex3f(-1.2f, 0.9f, 0.0f);
-    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.9f, 0.0f);
-    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.8f, 0.0f);
-    glVertex3f(-1.2f, 0.8f, 0.0f);
+    glVertex3f(-1.2f, 0.9f, 2.0f);
+    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.9f, 2.0f);
+    glVertex3f(-1.2f + player.hp * 2.4f / 100.0f, 0.8f, 2.0f);
+    glVertex3f(-1.2f, 0.8f, 2.0f);
     glEnd();
 }
 
@@ -138,7 +156,7 @@ void killEnemy() {
     enemy.active = false;
     enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
     enemy.y = 2.0f;
-    enemy.speed += increaseDifficulty(true);
+    enemy.speed += increaseDifficulty(false);
 }
 
 void updateScore(int amount) {
