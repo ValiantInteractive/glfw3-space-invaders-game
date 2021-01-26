@@ -3,7 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <cstdlib>
 #include <cstdio>
-#include "game.h"
+#include "logic.h"
 
 int keysArePressed[512];
 
@@ -38,7 +38,7 @@ void keyInput()
     }
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
     GLFWwindow* window;
     glfwSetErrorCallback(error_callback);
@@ -46,7 +46,7 @@ int main(void)
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
-    window = glfwCreateWindow(800, 600, "OpenGL Game", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "Arcade Shooter", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
