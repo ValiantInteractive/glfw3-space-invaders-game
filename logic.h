@@ -1,5 +1,5 @@
 // Created by Uljas Lindell on 25.1.2021.
-// Version 0.6
+// Version 0.3
 
 #ifndef SPACEINVADERS_LOGIC_H
 #define SPACEINVADERS_LOGIC_H
@@ -31,7 +31,7 @@ void updateScore(int);
 
 void killEnemy();
 
-float increaseDifficulty(bool);
+void increaseDifficulty(bool);
 
 Player player;
 Enemy enemy;
@@ -45,7 +45,7 @@ void initValues() {
     player.y = -0.75f;
     player.x = 0.0f;
     enemy.active = true;
-    enemy.speed = (float) (rand() % 3 + 1) / 500;
+    enemy.speed = (float) (rand() % 3 + 1) / 5000;
     enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
     enemy.y = 2.5f;
     std::cout << "Score: " << score << std::endl;
@@ -75,7 +75,7 @@ void drawProjectile() {
             glVertex3f(bullet[i].x + 0.01f, bullet[i].y, 0.0f);
             glVertex3f(bullet[i].x + 0.01f, bullet[i].y + 0.1f, 0.0f);
             glVertex3f(bullet[i].x - 0.01f, bullet[i].y + 0.1f, 0.0f);
-            bullet[i].y += 0.02f;
+            bullet[i].y += 0.002f;
             if (bullet[i].y >= enemy.y && bullet[i].y <= enemy.y + 0.3f) {
                 if (bullet[i].x <= enemy.x + 0.11f && bullet[i].x >= enemy.x - 0.11f) {
                     killEnemy();
@@ -129,9 +129,9 @@ void gameOver() {
 void killEnemy() {
     kills++;
     enemy.active = false;
-    enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
     enemy.y = 2.0f;
-    enemy.speed += increaseDifficulty(false);
+    enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
+    increaseDifficulty(false);
 }
 
 void updateScore(int amount) {
@@ -139,16 +139,14 @@ void updateScore(int amount) {
     std::cout << "Score: " << score << std::endl;
 }
 
-float increaseDifficulty(bool missed) {
-    float increase = 0;
+void increaseDifficulty(bool missed) {
     if (!missed) {
-        updateScore(50);
-        increase = (float) sqrt(kills) / 1000.0f;
+        updateScore(100);
+        enemy.speed += 0.0001f;
     } else {
-        updateScore(10);
-        increase += 0.001f;
+        updateScore(50);
+        enemy.speed += 0.00005f;
     }
-    return increase;
 }
 
 void update() {
@@ -179,7 +177,7 @@ void update() {
         enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
         enemy.y = 2.0f;
         enemy.active = true;
-        enemy.speed += increaseDifficulty(true);
+        increaseDifficulty(true);
     }
 
     if (player.hp <= 0) {

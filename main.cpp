@@ -6,6 +6,7 @@
 #include "logic.h"
 
 int keysArePressed[512];
+const float movementSpeed = 0.001f;
 
 static void error_callback(int error, const char* description)
 {
@@ -18,23 +19,25 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         shoot();
+        updateScore(-10);
+    }
 }
 
 void keyInput()
 {
     if(player.x < BORDER && player.x > -BORDER) {
         if (keysArePressed[GLFW_KEY_RIGHT]) {
-            player.x += 0.01f;
+            player.x += movementSpeed;
         }
         if (keysArePressed[GLFW_KEY_LEFT]) {
-            player.x -= 0.01f;
+            player.x -= movementSpeed;
         }
     } else if(player.x <= -BORDER) {
-        player.x += 0.01f ;
+        player.x += movementSpeed;
     } else if(player.x >= BORDER) {
-        player.x -= 0.01f;
+        player.x -= movementSpeed;
     }
 }
 
