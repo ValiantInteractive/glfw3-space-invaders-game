@@ -1,13 +1,14 @@
-// Created by Uljas Lindell on 25.1.2021.
-// Version 0.3
+// Version 0.5
 
 #ifndef SPACEINVADERS_LOGIC_H
 #define SPACEINVADERS_LOGIC_H
 #define BORDER 1
 #define MAX_PROJECTILES 50
+#define MAX_ENEMIES 10
 
 #include "iostream"
 #include "cmath"
+#include "classes/Enemy.h"
 
 typedef struct {
     float hp, x, y;
@@ -15,44 +16,37 @@ typedef struct {
 
 typedef struct {
     bool active;
-    float x, y, speed;
-} Enemy;
-
-typedef struct {
-    bool active;
     float x, y;
 } Projectile;
 
-int score, projectiles, kills;
+int score, projectiles, enemies;
+const float movementSpeed = 0.01f;
 
 void drawProjectile();
 
 void updateScore(int);
 
-void killEnemy();
-
-void increaseDifficulty(bool);
-
 Player player;
-Enemy enemy;
+Enemy *enemy[MAX_ENEMIES];
 Projectile bullet[MAX_PROJECTILES];
 
 void initValues() {
     score = 0;
     projectiles = 0;
-    kills = 0;
-    player.hp = 100.0f;
+    enemies = 0;
+    enemy[enemies] = new Enemy;
+    player.hp = 100.f;
     player.y = -0.75f;
-    player.x = 0.0f;
-    enemy.active = true;
-    enemy.speed = (float) (rand() % 3 + 1) / 5000;
-    enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
-    enemy.y = 2.5f;
+    player.x = 0.f;
     std::cout << "Score: " << score << std::endl;
-    for (int i = 0; i < MAX_PROJECTILES; i++) {
-        bullet[i].active = false;
-        bullet[i].x = player.x;
-        bullet[i].y = -0.4f;
+    for (auto &i : bullet) {
+        i.active = false;
+        i.x = player.x;
+        i.y = -0.4f;
+    }
+    while (enemies <= MAX_ENEMIES) {
+        enemies++;
+        enemy[enemies] = new Enemy;
     }
 }
 
@@ -68,17 +62,21 @@ void shoot() {
 
 void drawProjectile() {
     for (int i = 0; i <= MAX_PROJECTILES; i++) {
-        if (bullet[i].active && enemy.active) {
+        if (bullet[i].active) {
             glBegin(GL_QUADS);
             glColor3f(1.0f, 0.0f, 0.0f);
             glVertex3f(bullet[i].x - 0.01f, bullet[i].y, 0.0f);
             glVertex3f(bullet[i].x + 0.01f, bullet[i].y, 0.0f);
             glVertex3f(bullet[i].x + 0.01f, bullet[i].y + 0.1f, 0.0f);
             glVertex3f(bullet[i].x - 0.01f, bullet[i].y + 0.1f, 0.0f);
-            bullet[i].y += 0.002f;
-            if (bullet[i].y >= enemy.y && bullet[i].y <= enemy.y + 0.3f) {
-                if (bullet[i].x <= enemy.x + 0.11f && bullet[i].x >= enemy.x - 0.11f) {
-                    killEnemy();
+            bullet[i].y += 0.02f;
+            for (int j = 0; j <= enemies; j++) {
+                if (bullet[i].y >= enemy[j]->y && bullet[i].y <= enemy[j]->y + 0.3f) {
+                    if (bullet[i].x <= enemy[j]->x + 0.11f && bullet[i].x >= enemy[j]->x - 0.11f) {
+                        bullet[i].active = false;
+                        enemy[j]->active = false;
+                        updateScore(100);
+                    }
                 }
             }
             glEnd();
@@ -102,16 +100,6 @@ void drawPlayer() {
     glEnd();
 }
 
-void drawEnemy() {
-    glBegin(GL_QUADS);
-    glColor3f(0.3f, 0.0f, 0.0f);
-    glVertex3f(enemy.x - 0.1f, enemy.y, 0.0f);
-    glVertex3f(enemy.x + 0.1f, enemy.y, 0.0f);
-    glVertex3f(enemy.x + 0.1f, enemy.y + 0.3f, 0.0f);
-    glVertex3f(enemy.x - 0.1f, enemy.y + 0.3f, 0.0f);
-    glEnd();
-}
-
 void drawHealthBar() {
     glBegin(GL_QUADS);
     glColor3f(1.0f - player.hp / 100.0f, player.hp / 100.0f, 0.0f);
@@ -123,15 +111,10 @@ void drawHealthBar() {
 }
 
 void gameOver() {
+    for (auto &i : enemy) {
+        delete i;
+    }
     initValues();
-}
-
-void killEnemy() {
-    kills++;
-    enemy.active = false;
-    enemy.y = 2.0f;
-    enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
-    increaseDifficulty(false);
 }
 
 void updateScore(int amount) {
@@ -139,46 +122,23 @@ void updateScore(int amount) {
     std::cout << "Score: " << score << std::endl;
 }
 
-void increaseDifficulty(bool missed) {
-    if (!missed) {
-        updateScore(100);
-        enemy.speed += 0.0001f;
-    } else {
-        updateScore(50);
-        enemy.speed += 0.00005f;
-    }
-}
-
 void update() {
     drawPlayer();
-    drawHealthBar();
     drawProjectile();
 
-    if (enemy.active) {
-        drawEnemy();
-        enemy.y -= enemy.speed;
+    for (int i = 0; i <= enemies; i++) {
+        if (enemy[i]->active) {
+            if (player.y + 0.3f >= enemy[i]->y && player.y <= enemy[i]->y + 0.3f) {
+                if (player.x <= enemy[i]->x + 0.2f && player.x >= enemy[i]->x - 0.2f) {
+                    player.hp -= (float) (rand() % 18 + 4);
+                    enemy[i]->active = false;
+                }
+            }
+        }
+        enemy[i]->Update();
     }
 
-    if (player.y + 0.3f >= enemy.y && player.y <= enemy.y + 0.3f) {
-        if (player.x <= enemy.x + 0.2f && player.x >= enemy.x - 0.2f) {
-            player.hp -= (float) (rand() % 18 + 4);
-            enemy.active = false;
-        }
-    }
-    if (!enemy.active) {
-        enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
-        enemy.y = 2.0f;
-        enemy.active = true;
-    }
-    if (enemy.y > 2.0f) {
-        enemy.x = enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
-    }
-    if (enemy.y < -1.5f) {
-        enemy.x = (float) (rand() % 400 + 1) / 200 - 1;
-        enemy.y = 2.0f;
-        enemy.active = true;
-        increaseDifficulty(true);
-    }
+    drawHealthBar();
 
     if (player.hp <= 0) {
         gameOver();

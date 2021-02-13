@@ -6,52 +6,45 @@
 #include "logic.h"
 
 int keysArePressed[512];
-const float movementSpeed = 0.001f;
 
-static void error_callback(int error, const char* description)
-{
+static void error_callback(int error, const char *description) {
     fputs(description, stderr);
 }
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
     keysArePressed[key] = (glfwGetKey(window, key) == GLFW_PRESS);
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
     if (key == GLFW_KEY_SPACE && action == GLFW_PRESS) {
         shoot();
-        updateScore(-10);
     }
 }
 
-void keyInput()
-{
-    if(player.x < BORDER && player.x > -BORDER) {
+void keyInput() {
+    if (player.x < BORDER && player.x > -BORDER) {
         if (keysArePressed[GLFW_KEY_RIGHT]) {
             player.x += movementSpeed;
         }
         if (keysArePressed[GLFW_KEY_LEFT]) {
             player.x -= movementSpeed;
         }
-    } else if(player.x <= -BORDER) {
+    } else if (player.x <= -BORDER) {
         player.x += movementSpeed;
-    } else if(player.x >= BORDER) {
+    } else if (player.x >= BORDER) {
         player.x -= movementSpeed;
     }
 }
 
-int main(int argc, char *argv[])
-{
-    GLFWwindow* window;
+int main(int argc, char *argv[]) {
+    GLFWwindow *window;
     glfwSetErrorCallback(error_callback);
 
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
     window = glfwCreateWindow(800, 600, "Arcade Shooter", NULL, NULL);
-    if (!window)
-    {
+    if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -62,8 +55,7 @@ int main(int argc, char *argv[])
 
     initValues();
 
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         float ratio;
         int width, height;
 
