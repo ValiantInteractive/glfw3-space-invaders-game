@@ -1,4 +1,4 @@
-// Version 0.5
+// Version 1.0
 
 #ifndef SPACEINVADERS_LOGIC_H
 #define SPACEINVADERS_LOGIC_H
